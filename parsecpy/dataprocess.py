@@ -369,7 +369,7 @@ class ParsecData:
         xtimes.attrs = deepcopy(config)
         return xtimes
 
-    def speedups(self):
+    def speedups(self, serialfrequencyfixed = False):
         """
         Return DataArray (xarray) with resume of all speedups.
 
@@ -377,6 +377,7 @@ class ParsecData:
             dims(frequency, size, cores)
             data=numpy array with calculated speedups.
 
+        :param serialfrequencyfixed: If Ts is calculated using a fixed frequency.
         :return: DataArray with calculated speedups.
         """
 
@@ -387,14 +388,22 @@ class ParsecData:
             print('Error: Time measurement for 1 core not found')
             return None
         lcores = len(times.coords['cores'])
+        lfreq = len(times.coords['frequency'])
         ldims = []
         for c in times.dims:
             ldims.append(len(times.coords[c]))
         if len(ldims) == 2:
-            timesonecore = np.repeat(times.values[:, 0], lcores).reshape(tuple(ldims))
+            if serialfrequencyfixed:
+                timesonecore = np.repeat(np.repeat(times.values[-1, 0], lfreq), lcores).reshape(tuple(ldims))
+            else:
+                timesonecore = np.repeat(times.values[:, 0], lcores).reshape(tuple(ldims))
             xspeedup = (timesonecore / times)[:,1:]
         elif len(ldims) == 3:
-            timesonecore = np.repeat(times.values[:, :, 0], lcores).reshape(tuple(ldims))
+            lsize = len(times.coords['size'])
+            if serialfrequencyfixed:
+                timesonecore = np.repeat(np.repeat(np.array([times.values[-1, :, 0]]),lfreq, axis=0).reshape((lfreq,lsize)), lcores).reshape(tuple(ldims))
+            else:
+                timesonecore = np.repeat(times.values[:, :, 0], lcores).reshape(tuple(ldims))
             xspeedup = (timesonecore / times)[:,:,1:]
         xspeedup.attrs = times.attrs
         return xspeedup
@@ -500,11 +509,11 @@ class ParsecData:
                     xc = [i*1000 for i in data.coords['frequency'].values]
                     xc_label = 'Frequency'
             else:
-                if slidername is 'size':
+                if slidername == 'size':
                     dataplot = data.sel(size=int(idx))
                     xc = [i*1000 for i in dataplot.coords['frequency'].values]
                     xc_label = 'Frequency'
-                elif slidername is 'frequency':
+                elif slidername == 'frequency':
                     idx = float(idx[:-3])*1e6
                     dataplot = data.sel(frequency=idx)
                     xc = dataplot.coords['size'].values
@@ -521,7 +530,7 @@ class ParsecData:
                                           vmax=(zmax + (zmax - zmin) / 10))
             ax.tick_params(labelsize='small')
             ax.set_xlabel(xc_label)
-            if xc_label is 'Frequency':
+            if xc_label == 'Frequency':
                 ax.xaxis.set_major_formatter(ticker.EngFormatter(unit='Hz'))
             ax.set_ylabel('Number of Cores')
             ax.set_zlabel(zlabel)

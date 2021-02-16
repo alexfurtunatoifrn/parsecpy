@@ -371,11 +371,11 @@ class ParsecModel:
                     xc = [i*1000 for i in data.coords['frequency'].values]
                     xc_label = 'Frequency'
             else:
-                if slidername is 'size':
+                if slidername == 'size':
                     dataplot = data.sel(size=int(idx))
                     xc = [i*1000 for i in dataplot.coords['frequency'].values]
                     xc_label = 'Frequency'
-                elif slidername is 'frequency':
+                elif slidername == 'frequency':
                     idx = float(idx[:-3])*1e6
                     dataplot = data.sel(frequency=idx)
                     xc = dataplot.coords['size'].values
@@ -407,7 +407,7 @@ class ParsecModel:
             surf1._edgecolors2d = surf1._edgecolors3d
             surf1._facecolors2d = surf1._facecolors3d
             ax.set_xlabel(xc_label)
-            if xc_label is 'Frequency':
+            if xc_label == 'Frequency':
                 ax.xaxis.set_major_formatter(ticker.EngFormatter(unit='Hz'))
             ax.set_ylabel('Number of Cores')
             ax.set_zlabel(zlabel)
@@ -427,11 +427,11 @@ class ParsecModel:
                             x_train_points = train_points.copy()
                             x_train_points[:, 0] = 1000 * x_train_points[:, 0]
                 else:
-                    if slidername is 'size':
+                    if slidername == 'size':
                         dataplot_m = data_m.sel(size=int(idx))
                         xc = [i * 1000 for i in
                               dataplot_m.coords['frequency'].values]
-                    elif slidername is 'frequency':
+                    elif slidername == 'frequency':
                         dataplot_m = data_m.sel(frequency=float(idx))
                         xc = dataplot_m.coords['size'].values
                 yc = dataplot_m.coords['cores'].values
