@@ -404,8 +404,8 @@ class ParsecModel:
                                             cmap=colormap,
                                             linewidth=linewidth, edgecolor='r',
                                             linestyle='-', alpha=alpha)
-            surf1._edgecolors2d = surf1._edgecolors3d
-            surf1._facecolors2d = surf1._facecolors3d
+            surf1._edgecolors2d = surf1._edgecolor3d
+            surf1._facecolors2d = surf1._facecolor3d
             ax.set_xlabel(xc_label)
             if xc_label == 'Frequency':
                 ax.xaxis.set_major_formatter(ticker.EngFormatter(unit='Hz'))
