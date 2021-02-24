@@ -95,8 +95,10 @@ def argsparsevalidation():
     parser.add_argument('-n', '--problemsizes', type=argsparselist,
                         help='List of problem sizes to model used. '
                              'Ex: native_01,native_05,native_08')
+    parser.add_argument('-s', '--serialfrequencyfixed', type=bool,
+                        help='If it considers the serial time at fixed frequency')
     parser.add_argument('-o', '--overhead', type=bool,
-                        help='If it consider the overhead')
+                        help='If it considers the overhead')
     parser.add_argument('-t', '--threads', type=int,
                         help='Number of Threads')
     group = parser.add_mutually_exclusive_group()
@@ -143,6 +145,9 @@ def main():
         config['repetitions'] = 1
     best_repetition = 1
 
+    if 'serialfrequencyfixed' not in config.keys():
+        config['serialfrequencyfixed'] = False
+
     if config['algorithm'] in ['pso', 'csa']:
         kwargsmodel = {'overhead': config['overhead']}
         if not os.path.isfile(config['modelcodefilepath']):
@@ -155,7 +160,7 @@ def main():
         sys.exit()
 
     parsec_exec = ParsecData(config['parsecpydatafilepath'])
-    measure = parsec_exec.speedups()
+    measure = parsec_exec.speedups(serialfrequencyfixed=config['serialfrequencyfixed'])
     input_sizes = []
     if 'size' in measure.dims:
         input_sizes = measure.attrs['input_sizes']
